@@ -1,5 +1,6 @@
 package com.jetbrains.handson.httpapi.routes
 
+import com.jetbrains.handson.httpapi.dao.TimeEntriesDAO
 import com.jetbrains.handson.httpapi.models.TimeEntry
 import com.jetbrains.handson.httpapi.models.timeEntryStorage
 import io.ktor.application.*
@@ -8,11 +9,12 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 
-fun Route.timeEntryRouting() {
+fun Route.timeEntryRouting(dao: TimeEntriesDAO) {
     route("/timeEntry") {
         get {
-            if (timeEntryStorage.isNotEmpty()) {
-                call.respond(timeEntryStorage)
+            val timeEntries = dao.getAllTimeEntries()
+            if (timeEntries.isNotEmpty()) {
+                call.respond(timeEntries)
             } else {
                 call.respondText("No time entries found", status = HttpStatusCode.NotFound)
             }
@@ -23,7 +25,7 @@ fun Route.timeEntryRouting() {
                 "Missing or malformed id",
                 status = HttpStatusCode.BadRequest
             )
-            val entry = timeEntryStorage.find { it.id == id } ?: return@get call.respondText(
+            val entry = dao.getTimeEntry(id) ?: return@get call.respondText(
                 "No time entry with id $id",
                 status = HttpStatusCode.NotFound
             )
@@ -32,23 +34,19 @@ fun Route.timeEntryRouting() {
 
         post {
             val timeEntry = call.receive<TimeEntry>()
-            timeEntryStorage.add(timeEntry)
+            dao.createTimeEntry(timeEntry.time, timeEntry.timestamp, timeEntry.problems)
             call.respondText("Time entry stored correctly", status = HttpStatusCode.Created)
         }
 
         delete("{id}") {
             val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest)
-            if (timeEntryStorage.removeIf {it.id == id }) {
-                call.respondText("Customer removed successfully ")
-            } else {
-                call.respondText("Not found", status = HttpStatusCode.NotFound)
-            }
+            dao.deleteTimeEntry(id)
         }
     }
 }
 
-fun Application.registerTimeEntryRoutes() {
+fun Application.registerTimeEntryRoutes(dao: TimeEntriesDAO) {
     routing {
-        timeEntryRouting()
+        timeEntryRouting(dao)
     }
 }
