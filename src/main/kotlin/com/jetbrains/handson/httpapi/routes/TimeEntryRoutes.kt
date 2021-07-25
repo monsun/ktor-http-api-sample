@@ -2,7 +2,6 @@ package com.jetbrains.handson.httpapi.routes
 
 import com.jetbrains.handson.httpapi.dao.TimeEntriesDAO
 import com.jetbrains.handson.httpapi.models.TimeEntry
-import com.jetbrains.handson.httpapi.models.timeEntryStorage
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -34,7 +33,7 @@ fun Route.timeEntryRouting(dao: TimeEntriesDAO) {
 
         post {
             val timeEntry = call.receive<TimeEntry>()
-            dao.createTimeEntry(timeEntry.time, timeEntry.timestamp, timeEntry.problems)
+            dao.createTimeEntry(timeEntry.measuredTime, timeEntry.timeOfEntry, timeEntry.problems)
             call.respondText("Time entry stored correctly", status = HttpStatusCode.Created)
         }
 

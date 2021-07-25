@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 import java.sql.Timestamp
 
 @Serializable
-data class TimeEntry(val id: String, val time: String, val timestamp: String, val problems: List<String> = listOf())
+data class TimeEntry(val id: String, val measuredTime: String, val timeOfEntry: String, val problems: List<String> = listOf())
 
 val timeEntryStorage = mutableListOf<TimeEntry>()

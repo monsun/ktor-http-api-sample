@@ -15,11 +15,17 @@ class TimeEntriesDAO(val db: Database) : TimeEntriesDAOI {
     override fun createTimeEntry(time: String, timestamp: String, problems: List<String>) = transaction(db) {
         val format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
 
-        TimeEntries.insert {
-            it[TimeEntries.time] = time
+        val entryID = TimeEntries.insert {
+            it[TimeEntries.measuredTime] = time
 //            it[TimeEntries.timestamp] = format.parseLocalDateTime(timestamp)
             it[TimeEntries.id] = UUID.randomUUID()
         }
+//        for (problem in problems) {
+//            Problems.insert {
+//                it[Problems.name] = problem
+//                it[Problems.entryId] = entryID
+//            }
+//        }
         Unit
     }
 
@@ -40,8 +46,8 @@ class TimeEntriesDAO(val db: Database) : TimeEntriesDAOI {
         TimeEntries.selectAll().map {
             TimeEntry(
                 id = it[TimeEntries.id].toString(),
-                timestamp = it[TimeEntries.timestamp].toString(),
-                time = it[TimeEntries.time]
+                timeOfEntry = it[TimeEntries.timeOfEntry].toString(),
+                measuredTime = it[TimeEntries.measuredTime]
             )
         }
     }
