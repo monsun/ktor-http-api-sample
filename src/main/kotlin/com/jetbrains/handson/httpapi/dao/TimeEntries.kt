@@ -8,7 +8,6 @@ import org.jetbrains.exposed.sql.jodatime.datetime
 object TimeEntries: UUIDTable () {
     val timeOfEntry = datetime("timestamp").defaultExpression(CurrentDateTime())
     val measuredTime = varchar("time", 10)
-//    val problems = optReference("problems", Problems)
     override val primaryKey = PrimaryKey(id, name = "PK_UUID_ENTRIES")
 }
 

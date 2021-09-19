@@ -13,20 +13,20 @@ class TimeEntriesDAO(val db: Database) : TimeEntriesDAOI {
     }
 
     override fun createTimeEntry(time: String, timestamp: String, problems: List<String>) = transaction(db) {
-        val format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+        val format = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")
+        val uuid = UUID.randomUUID()
 
-        val entryID = TimeEntries.insert {
-            it[TimeEntries.measuredTime] = time
-//            it[TimeEntries.timestamp] = format.parseLocalDateTime(timestamp)
-            it[TimeEntries.id] = UUID.randomUUID()
+        TimeEntries.insert {
+            it[measuredTime] = time
+            it[timeOfEntry] = format.parseDateTime(timestamp).toDateTime()
+            it[TimeEntries.id] = uuid
         }
-//        for (problem in problems) {
-//            Problems.insert {
-//                it[Problems.name] = problem
-//                it[Problems.entryId] = entryID
-//            }
-//        }
-        Unit
+        for (problem in problems) {
+            Problems.insert {
+                it[name] = problem
+                it[entryId] = uuid
+            }
+        }
     }
 
     override fun updateTimeEntry(id: String, time: String, timestamp: String, problems: List<String>) {
@@ -35,7 +35,6 @@ class TimeEntriesDAO(val db: Database) : TimeEntriesDAOI {
 
     override fun deleteTimeEntry(id: String) = transaction(db) {
 //        TimeEntries.deleteWhere { TimeEntries.id eq id }
-        Unit
     }
 
     override fun getTimeEntry(id: String): TimeEntry? {
@@ -47,7 +46,7 @@ class TimeEntriesDAO(val db: Database) : TimeEntriesDAOI {
             TimeEntry(
                 id = it[TimeEntries.id].toString(),
                 timeOfEntry = it[TimeEntries.timeOfEntry].toString(),
-                measuredTime = it[TimeEntries.measuredTime]
+                measuredTime = it[TimeEntries.measuredTime],
             )
         }
     }
